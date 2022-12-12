@@ -14,6 +14,7 @@ const activeBlock = useActiveBlock();
       <Auth v-if="!user" />
       <Feed v-else-if="activeBlock == 'Feed'" />
       <Account v-else-if="activeBlock == 'Account'" />
+      <Profile v-else-if="activeBlock == 'Profile'" />
     </div>
   </div>
 </template>
