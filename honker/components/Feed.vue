@@ -1,0 +1,113 @@
+<script setup lang="ts">
+//HACK: These imports should be auto-imported by NUXT. Only working if imported manually. Attempted adding to dirs property in nuxt.config.ts already, issue persists.
+import { RealtimePostgresChangesPayload } from "@supabase/realtime-js";
+import { SupabaseClient } from "@supabase/supabase-js";
+
+const supabase: SupabaseClient = useSupabaseClient();
+const user = useSupabaseUser();
+
+const feed = reactive({
+  honks: [] as Honk[],
+  queue: [] as Honk[],
+  queueCount: 0,
+});
+
+const loadNewHonks = () => {
+  feed.honks.unshift(...feed.queue);
+  feed.queue = [];
+  feed.queueCount = 0;
+};
+
+const parseHonk = (payload: RealtimePostgresChangesPayload<any>): Honk => {
+  return {
+    post_id: payload.new.post_id,
+    content: payload.new.content,
+    created_at: payload.new.created_at,
+    user_id: payload.new.user_id,
+    likes: payload.new.likes,
+    reposts: payload.new.reposts,
+    replys: payload.new.replys,
+  };
+};
+
+const channel = supabase
+  .channel("realtime:honks")
+  .on(
+    "postgres_changes",
+    { event: "*", schema: "public", table: "honks" },
+    (payload: RealtimePostgresChangesPayload<any>) => {
+      switch (payload.eventType) {
+        case "INSERT":
+          if (payload.new.user_id === user.value?.id) {
+            feed.honks.unshift(parseHonk(payload));
+            break;
+          } else {
+            //HACK: This is precarious as it opens up a vulnerability if the queueCount != queue.length. The issue being you can't use a function in a reactive object. or rather you can't reference a reactive object in the same reactive object.
+            feed.queue.unshift(parseHonk(payload));
+            feed.queueCount++;
+            break;
+          }
+        case "UPDATE":
+          //FIXME: updates entire honk object, not just the changed values
+          feed.queue.splice(
+            feed.queue.findIndex(
+              (honk) => honk.post_id === payload.new.post_id
+            ),
+            1,
+            parseHonk(payload)
+          );
+          break;
+        case "DELETE":
+          feed.queue.splice(
+            feed.queue.findIndex(
+              (honk) => honk.post_id === payload.old.post_id
+            ),
+            1
+          );
+          break;
+        default:
+          break;
+      }
+    }
+  )
+  .subscribe();
+
+onMounted(async () => {
+  //get the last 10 honks from the database whose user id's are included in the user's followers list
+  try {
+    //TODO: currently only shows 10 most recent honks, should be infinite scroll
+    const { data, error } = await supabase.rpc("get_honks_for_feed", {
+      input_user_id: user.value?.id,
+    });
+    if (error) throw error;
+
+    for (let i = 0; i < data.length; i++) {
+      feed.honks.push({
+        post_id: data[i].post_id,
+        content: data[i].content,
+        created_at: data[i].created_at,
+        user_id: data[i].user_id,
+        likes: data[i].likes,
+        reposts: data[i].reposts,
+        replys: data[i].replys,
+      });
+    }
+  } catch (error: any | unknown) {
+    console.error(Error(error.message));
+  }
+});
+</script>
+
+<template>
+  <div class="h-screen flex flex-col gap-4 w-3/5 pt-4">
+    <Honk />
+    <div v-if="feed.queueCount != 0" class="toast toast-top toast-center w-1/2">
+      <div class="alert alert-info">
+        <span @click="loadNewHonks">load {{ feed.queueCount }} new honks?</span>
+      </div>
+    </div>
+    <div v-for="(honk, index) in feed.honks" :key="index">
+      <LazyOtherHonk v-bind="honk" />
+    </div>
+  </div>
+</template>
