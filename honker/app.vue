@@ -13,6 +13,7 @@ const activeBlock = useActiveBlock();
     <div class="flex flex-col items-center">
       <Auth v-if="!user" />
       <Feed v-else-if="activeBlock == 'Feed'" />
+      <Account v-else-if="activeBlock == 'Account'" />
     </div>
   </div>
 </template>
