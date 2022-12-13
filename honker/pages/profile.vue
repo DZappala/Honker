@@ -70,7 +70,7 @@ if (data) {
       </div>
       <p>
         {{
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Integer malesuada nunc vel risus commodo viver."
+          "I'm a lover of life and all its quirks. With a sharp sense of humor and a big heart, I'm here to connect with others and make the world a better place. Let's be friends and have some fun."
         }}
       </p>
     </article>

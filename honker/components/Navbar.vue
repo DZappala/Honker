@@ -5,11 +5,6 @@ const supabase: SupabaseClient = useSupabaseClient();
 const user = useSupabaseUser();
 const loading = ref<boolean>(true);
 // TODO: this activeBlock state should use the Component type so that someone can't just pass any string into it. The activeBlock composable should just check whether the component is valid else throw an error.
-const activeBlock = useActiveBlock();
-
-const load = (comp: string) => {
-  activeBlock.value = comp;
-};
 
 const signOut = async () => {
   try {
@@ -27,11 +22,11 @@ const signOut = async () => {
 };
 </script>
 <template>
-  <div class="navbar bg-base-100 ps-4">
+  <nav class="navbar bg-base-100 ps-4">
     <div class="flex-1 gap-2">
-      <a @click="load('Feed')" class="btn btn-ghost normal-case text-xl"
-        >Honker</a
-      >
+      <NuxtLink to="feed" class="btn btn-ghost normal-case text-xl">
+        Honker
+      </NuxtLink>
       <img src="goose.png" alt="Honker Logo" class="w-1/12" />
     </div>
     <div v-if="user" class="flex-none gap-2">
@@ -53,12 +48,12 @@ const signOut = async () => {
           tabindex="0"
           class="p-2 shadow-lg shadow-primary menu menu-compact dropdown-content bg-primary text-primary-content rounded-box"
         >
-          <li><a @click="load('Feed')"> Feed </a></li>
-          <li><a @click="load('Profile')"> Profile </a></li>
-          <li @click="load('Account')"><a>Settings</a></li>
+          <li><NuxtLink to="/feed">Feed</NuxtLink></li>
+          <li><NuxtLink to="/profile">Profile</NuxtLink></li>
+          <li><NuxtLink to="/settings">Settings</NuxtLink></li>
           <li @click="signOut"><a>Logout</a></li>
         </ul>
       </div>
     </div>
-  </div>
+  </nav>
 </template>

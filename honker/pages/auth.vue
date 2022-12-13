@@ -1,8 +1,12 @@
 <script setup lang="ts">
 //TODO: switch database from postgresql to graphql
 import { SupabaseClient } from "@supabase/supabase-js";
-
+const router = useRouter();
 const supabase: SupabaseClient = useSupabaseClient();
+const user = useSupabaseUser();
+if (user.value) {
+  router.push("/feed");
+}
 
 const loading = ref<boolean>(false);
 const email = ref<string>("");
@@ -40,7 +44,6 @@ const handleLogin = async () => {
     }
   } catch (error: any | unknown) {
     console.error(error.message);
-    
   } finally {
     loading.value = false;
     loginSuccess.value = true;
