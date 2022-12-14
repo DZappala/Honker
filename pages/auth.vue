@@ -1,8 +1,9 @@
 <script setup lang="ts">
 //TODO: switch database from postgresql to graphql
 import { SupabaseClient } from "@supabase/supabase-js";
+
 const router = useRouter();
-const supabase: SupabaseClient = useSupabaseClient();
+const supabaseAuth: SupabaseClient = useSupabaseAuthClient();
 const user = useSupabaseUser();
 if (user.value) {
   router.push("/feed");
@@ -12,9 +13,7 @@ const loading = ref<boolean>(false);
 const email = ref<string>("");
 const username = ref<string>("");
 const fullName = ref<string>("");
-
 const loginSuccess = ref<boolean>(false);
-
 const isUser = ref(true); //by default, assume user exists
 
 const handleLogin = async () => {
@@ -22,7 +21,7 @@ const handleLogin = async () => {
     loading.value = true;
 
     //check if user exists by looking up email in profiles table
-    const response = await supabase.rpc("is_user", {
+    const response = await supabaseAuth.rpc("is_user", {
       email_to_check: email.value,
     });
 
@@ -34,8 +33,11 @@ const handleLogin = async () => {
 
     //if user exists, sign in with Otp and email
     if (response.data) {
-      const { error } = await supabase.auth.signInWithOtp({
+      const { error } = await supabaseAuth.auth.signInWithOtp({
         email: email.value,
+        options: {
+          emailRedirectTo: `localhost:3000/feed`, //FIXME: this should append the magic link with the feed route, but currently, the magic link redirects to '/' instead of '/feed'
+        },
       });
       if (error) throw error;
     } else {
@@ -44,6 +46,7 @@ const handleLogin = async () => {
     }
   } catch (error: any | unknown) {
     console.error(error.message);
+    return;
   } finally {
     loading.value = false;
     loginSuccess.value = true;
@@ -53,7 +56,7 @@ const handleLogin = async () => {
 const handleSignUp = async () => {
   try {
     loading.value = true;
-    const { error } = await supabase.auth.signInWithOtp({
+    const { error } = await supabaseAuth.auth.signInWithOtp({
       email: email.value,
       options: {
         data: {
@@ -62,12 +65,14 @@ const handleSignUp = async () => {
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         },
+        emailRedirectTo: `localhost:3000/feed`,
       },
     });
 
     if (error) throw error;
   } catch (error: any | unknown) {
-    throw new Error(error.message);
+    console.error(error.message);
+    return;
   } finally {
     loading.value = false;
     loginSuccess.value = true;
@@ -114,8 +119,10 @@ const handleSignUp = async () => {
         />
       </label>
       <label class="form-control" for="submit">
-        <TooltipBottom
+        <DefaultTooltip
           :isShown="loginSuccess"
+          type="success"
+          direction="bottom"
           tooltipMessage="Success! Check your email"
         >
           <input
@@ -124,7 +131,7 @@ const handleSignUp = async () => {
             :value="loading ? 'Loading' : 'Send me a magic link'"
             :disabled="loading"
           />
-        </TooltipBottom>
+        </DefaultTooltip>
       </label>
     </div>
   </form>

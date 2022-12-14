@@ -1,7 +1,9 @@
 <script setup lang="ts">
-const supabase = useSupabaseClient();
-const user = useSupabaseUser();
+const props = defineProps<{
+  forUser?: String;
+}>();
 
+const supabase = useSupabaseClient();
 const username = ref("");
 const website = ref("");
 const avatar_path = ref("");
@@ -12,7 +14,7 @@ const bio = ref("");
 const { data } = await supabase
   .from("users")
   .select(`username, website, avatar_url`)
-  .eq("id", user.value?.id)
+  .eq("id", props.forUser)
   .single();
 
 if (data) {
@@ -23,7 +25,7 @@ if (data) {
 </script>
 <template>
   <div
-    class="flex flex-col md:flex-row card indicator justify-between items-center w-2/3 mt-6 bg-primary text-primary-content p-5"
+    class="flex flex-col lg:flex-row card indicator justify-between items-center w-2/3 mt-6 bg-primary p-5"
   >
     <div class="indicator-item">
       <button class="btn btn-sm no-animation text-base-content">
@@ -48,7 +50,7 @@ if (data) {
         </svg>
       </button>
     </div>
-    <div class="avatar p-6 md:w-1/3 h-full">
+    <div class="avatar p-6 w-auto lg:w-1/3 h-auto">
       <div
         class="rounded-full ring ring-base-300 ring-offset-base-100 ring-offset-4"
       >
@@ -61,8 +63,10 @@ if (data) {
         />
       </div>
     </div>
-    <article class="card-body prose md:w-2/3 h-auto">
-      <h1>@{{ username }}</h1>
+    <article
+      class="card-body prose text-primary-content w-auto lg:w-2/3 h-auto"
+    >
+      <h1 class="text-primary-content">@{{ username }}</h1>
       <div class="not-prose">
         <NuxtLink class="link" :to="`http://${website}`">{{
           website

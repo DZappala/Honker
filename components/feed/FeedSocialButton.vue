@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { SupabaseClient } from "@supabase/supabase-js";
-
 const supabase: SupabaseClient = useSupabaseClient();
 
 const props = defineProps<{

@@ -47,10 +47,10 @@ const handleHonk = async () => {
 
 <template>
   <form
-    class="form-control flex flex-col gap-4 items-end"
+    class="form-control flex flex-col gap-4 items-end w-full"
     @submit.prevent="handleHonk"
   >
-    <div class="indicator w-full prose">
+    <div class="indicator prose w-full">
       <span
         :class="
           characterCount < 0

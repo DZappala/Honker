@@ -1,11 +1,12 @@
 <script setup lang="ts">
-//HACK: These imports should be auto-imported by NUXT. Only working if imported manually. Attempted adding to dirs property in nuxt.config.ts already, issue persists.
 import { RealtimePostgresChangesPayload } from "@supabase/realtime-js";
 import { SupabaseClient } from "@supabase/supabase-js";
 
-const supabase: SupabaseClient = useSupabaseClient();
-const user = useSupabaseUser();
+const props = defineProps<{
+  forUser?: string;
+}>();
 
+const supabase: SupabaseClient = useSupabaseClient();
 const feed = reactive({
   honks: [] as Honk[],
   queue: [] as Honk[],
@@ -38,7 +39,7 @@ const channel = supabase
     (payload: RealtimePostgresChangesPayload<any>) => {
       switch (payload.eventType) {
         case "INSERT":
-          if (payload.new.user_id === user.value?.id) {
+          if (payload.new.user_id === props.forUser) {
             feed.honks.unshift(parseHonk(payload));
             break;
           } else {
@@ -73,11 +74,10 @@ const channel = supabase
   .subscribe();
 
 onMounted(async () => {
-  //get the last 10 honks from the database whose user id's are included in the user's followers list
   try {
-    //TODO: currently only shows 10 most recent honks, should be infinite scroll
-    const { data, error } = await supabase.rpc("get_honks_for_feed", {
-      input_user_id: user.value?.id,
+    //get the honks from the databases
+    const { data, error } = await supabase.rpc("get_user_honks", {
+      input_user_id: props.forUser,
     });
     if (error) throw error;
 
@@ -96,18 +96,21 @@ onMounted(async () => {
     console.error(Error(error.message));
   }
 });
+
+onUnmounted(() => {
+  supabase.removeChannel(channel);
+});
 </script>
 
 <template>
   <div class="h-screen flex flex-col gap-4 w-3/5 pt-4">
-    <Honk />
     <div v-if="feed.queueCount != 0" class="toast toast-top toast-center w-1/2">
       <div class="alert alert-info">
         <span @click="loadNewHonks">load {{ feed.queueCount }} new honks?</span>
       </div>
     </div>
     <div v-for="(honk, index) in feed.honks" :key="index">
-      <LazyOtherHonk v-bind="honk" />
+      <LazyFeedOtherHonk v-bind="honk" />
     </div>
   </div>
 </template>

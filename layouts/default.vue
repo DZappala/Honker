@@ -1,6 +1,6 @@
 <template>
-  <div class="container h-screen flex flex-col items-center">
-    <Navbar class="sticky top-0 z-50" />
+  <div class="container h-screen flex flex-col items-center align-item ">
+    <DefaultNavbar class="sticky top-0 z-50" />
     <slot />
   </div>
 </template>

@@ -26,20 +26,17 @@ loading.value = false;
 const updateUser = async () => {
   try {
     loading.value = true;
-    const user = useSupabaseUser();
 
-    const { error } = await supabase.from("users").upsert(
-      {
+    const { error } = await supabase
+      .from("users")
+      .update({
         id: user.value?.id,
         username: username.value,
         website: website.value,
         avatar_url: avatar_path.value,
         updated_at: new Date().toISOString(),
-      },
-      {
-        onConflict: "id, username",
-      }
-    );
+      })
+      .eq("id", user.value?.id);
 
     if (error) throw error;
   } catch (error: any | unknown) {

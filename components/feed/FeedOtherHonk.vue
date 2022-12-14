@@ -18,7 +18,7 @@ const props = defineProps<{
 
 const username = ref<string>("");
 
-const getUsername = async () => {
+const getUserProfile = async () => {
   try {
     const { data, error } = await supabase
       .from("users")
@@ -49,7 +49,7 @@ const getUsername = async () => {
 };
 
 onBeforeMount(() => {
-  getUsername();
+  getUserProfile();
 });
 </script>
 
@@ -59,28 +59,42 @@ onBeforeMount(() => {
       <img src="https://placeimg.com/400/500/arch" alt="Album" />
     </figure>
     <div class="card-body lg:w-2/3 sm:w-full">
-      <p class="card-actions justify-end link link-accent link-hover">
-        {{ username }}
-      </p>
+      <div class="dropdown dropdown-end dropdown-hover">
+        <NuxtLink
+          tabindex="0"
+          :to="`/profile/${user_id}`"
+          class="card-actions justify-end link link-accent link-hover"
+        >
+          {{ username }}
+        </NuxtLink>
+        <ul
+          tabindex="0"
+          class="shadow-md shadow-secondary menu menu-compact dropdown-content bg-secondary text-secondary-content rounded-box"
+        >
+          <li>
+            <NuxtLink :to="`/api/follow-${user_id}`"> Follow </NuxtLink>
+          </li>
+        </ul>
+      </div>
       <p class="prose text-base-content break-words">{{ content }}</p>
       <div
         class="card-actions justify-end flex-nowrap justify-content-center gap-4"
       >
-        <SocialButton
+        <FeedSocialButton
           :initial-count="likes"
           :post-id="post_id"
           :action="'likes'"
           :initial-state="false"
           :icon="'heart.svg'"
         />
-        <SocialButton
+        <FeedSocialButton
           :initial-count="reposts"
           :post-id="post_id"
           :action="'reposts'"
           :initial-state="false"
           :icon="'loop.svg'"
         />
-        <SocialButton
+        <FeedSocialButton
           :initial-count="replys"
           :post-id="post_id"
           :action="'replys'"

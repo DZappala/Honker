@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { SupabaseClient } from "@supabase/supabase-js";
 
-const supabase: SupabaseClient = useSupabaseClient();
+const supabaseAuth: SupabaseClient = useSupabaseAuthClient();
 const user = useSupabaseUser();
 const loading = ref<boolean>(true);
-// TODO: this activeBlock state should use the Component type so that someone can't just pass any string into it. The activeBlock composable should just check whether the component is valid else throw an error.
+const router = useRouter();
 
 const signOut = async () => {
   try {
     loading.value = true;
-    let { error } = await supabase.auth.signOut();
+    const { error } = await supabaseAuth.auth.signOut();
 
     if (error) throw error;
 
@@ -17,6 +17,8 @@ const signOut = async () => {
   } catch (error: any | unknown) {
     alert(error.message);
   } finally {
+    alert("You have been logged out!");
+    router.push("/auth");
     loading.value = false;
   }
 };
