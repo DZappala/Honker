@@ -1,3 +1,6 @@
+/// <reference path="./types/database.types.ts"
+/// <reference path="./types/index.ts"
+
 export default defineNuxtConfig({
   modules: ["@nuxtjs/tailwindcss", "@nuxtjs/supabase"],
   typescript: {

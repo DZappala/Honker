@@ -8,7 +8,9 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "test": "vitest",
+    "coverage": "vitest run --coverage"
   },
   "devDependencies": {
     "@nuxtjs/supabase": "^0.3.0",
@@ -17,10 +19,12 @@
   },
   "dependencies": {
     "@datastructures-js/stack": "^3.1.4",
+    "@nuxt/test-utils": "^3.0.0",
     "@tailwindcss/typography": "^0.5.8",
     "daisyui": "^2.41.0",
     "graphql": "^16.6.0",
     "graphql-config": "^4.3.6",
+    "vitest": "^0.27.0",
     "vue-tsc": "^1.0.10"
   }
 }

@@ -22,8 +22,9 @@ const username = ref<string>("");
 
 const handleFollowUnfollow = async () => {
   try {
+    if (!user.value) throw new Error("User is not logged in!");
     const { error } = await supabase.rpc("handle_follow_user", {
-      current_user_id: user.value?.id,
+      current_user_id: user.value.id,
       input: props.user_id,
     });
     if (error) {

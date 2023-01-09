@@ -95,15 +95,10 @@ export interface Database {
         Args: { input_user_id: string };
         Returns: unknown;
       };
-      handle_follow_user:
-        | {
-            Args: { current_user_id: string; input: string };
-            Returns: undefined;
-          }
-        | {
-            Args: { input: string };
-            Returns: undefined;
-          };
+      handle_follow_user: {
+        Args: { current_user_id: string; input: string };
+        Returns: undefined;
+      };
       install_available_extensions_and_test: {
         Args: Record<PropertyKey, never>;
         Returns: boolean;

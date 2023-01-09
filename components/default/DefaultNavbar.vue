@@ -44,6 +44,7 @@ const getSearchType = (search: string) => {
 
 const getSearchPredictions = async () => {
   loading.value = true;
+  searchPredictions.value = [];
   const searchType = getSearchType(search.value);
   //FIXME: supabase is only returning search predictions if they match the string completely. I.E. "Monica" will return "Monica" but "Moni" will not return "Monica
   switch (searchType) {
@@ -54,52 +55,51 @@ const getSearchPredictions = async () => {
       // searchPredictions.value = data.map((honk) => honk.tags);
       break;
     case "at":
-      const { data, error } = await supabase
-        .from("users")
-        .select()
-        .textSearch("username", `${search.value}`)
-        .limit(5);
-      if (error) throw error;
-      searchPredictions.value = data.map((user) => {
-        return {
-          searchType: searchType,
-          value: `@${user.username}`,
-          endpoint: `/profile/${user.id}`,
-        };
-      });
+      // const { data, error } = await supabase.rpc("search_honks", {
+      //   input: search.value,
+      // });
+      // if (error) throw error;
+      // searchPredictions.value = data.map((user) => {
+      //   return {
+      //     searchType: searchType,
+      //     value: `@${user.username}`,
+      //     endpoint: `/profile/${user.id}`,
+      //   };
+      // });
       break;
     case "text":
+      // const { data: users, error: honksError } = await supabase
+      //   .from("honks")
+      //   .select()
+      //   .textSearch("content", `${search.value}`)
+      //   .limit(5);
+      // if (usersError) throw usersError;
+
       const { data: honks, error: honksError } = await supabase
         .from("honks")
         .select()
-        .textSearch("content", `${search.value}`)
+        .ilike("content", `%${search.value}%`)
         .limit(5);
+
       if (honksError) throw honksError;
-      const { data: users, error: usersError } = await supabase
-        .from("users")
-        .select()
-        .textSearch("username", `${search.value}`)
-        .limit(5);
-      if (usersError) throw usersError;
-      searchPredictions.value.push(
-        ...honks.map((honk) => {
-          return {
-            searchType: searchType,
-            value: honk.content,
-            endpoint: `/honk/${honk.post_id}`,
-          };
+
+      honks.forEach((honk) =>
+        searchPredictions.value.push({
+          searchType: searchType,
+          value: honk.content,
+          endpoint: `/honk/${honk.post_id}`,
         })
       );
 
-      searchPredictions.value.push(
-        ...users.map((user) => {
-          return {
-            searchType: searchType,
-            value: `@${user.username}`,
-            endpoint: `/profile/${user.id}`,
-          };
-        })
-      );
+      // searchPredictions.value.push(
+      //   ...users.map((user) => {
+      //     return {
+      //       searchType: searchType,
+      //       value: `@${user.username}`,
+      //       endpoint: `/profile/${user.id}`,
+      //     };
+      //   })
+      // );
       break;
     default:
       break;
