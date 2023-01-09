@@ -1,9 +1,10 @@
 <script setup lang="ts">
 //TODO: switch database from postgresql to graphql
-import { SupabaseClient } from "@supabase/supabase-js";
+import { use } from "h3";
+import type { Database } from "~/types/database.types";
 
 const router = useRouter();
-const supabaseAuth: SupabaseClient = useSupabaseAuthClient();
+const authClient = useSupabaseAuthClient<Database>();
 const user = useSupabaseUser();
 if (user.value) {
   router.push("/feed");
@@ -21,7 +22,7 @@ const handleLogin = async () => {
     loading.value = true;
 
     //check if user exists by looking up email in profiles table
-    const response = await supabaseAuth.rpc("is_user", {
+    const response = await authClient.rpc("is_user", {
       email_to_check: email.value,
     });
 
@@ -33,7 +34,7 @@ const handleLogin = async () => {
 
     //if user exists, sign in with Otp and email
     if (response.data) {
-      const { error } = await supabaseAuth.auth.signInWithOtp({
+      const { error } = await authClient.auth.signInWithOtp({
         email: email.value,
         options: {
           emailRedirectTo: `localhost:3000/feed`, //FIXME: this should append the magic link with the feed route, but currently, the magic link redirects to '/' instead of '/feed'
@@ -56,7 +57,7 @@ const handleLogin = async () => {
 const handleSignUp = async () => {
   try {
     loading.value = true;
-    const { error } = await supabaseAuth.auth.signInWithOtp({
+    const { error } = await authClient.auth.signInWithOtp({
       email: email.value,
       options: {
         data: {
