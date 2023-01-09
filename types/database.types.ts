@@ -1,6 +1,3 @@
-/*
- * types for supabase database
- */
 export type Json =
   | string
   | number
@@ -24,7 +21,7 @@ export interface Database {
         };
         Insert: {
           post_id?: number;
-          created_at?: string;
+          created_at: string;
           user_id: string;
           content: string;
           likes?: number;
@@ -52,6 +49,9 @@ export interface Database {
           avatar_url: string | null;
           followers: string[] | null;
           following: string[] | null;
+          created_at: string | null;
+          bio: string | null;
+          location: string | null;
         };
         Insert: {
           id: string;
@@ -63,6 +63,9 @@ export interface Database {
           avatar_url?: string | null;
           followers?: string[] | null;
           following?: string[] | null;
+          created_at?: string | null;
+          bio?: string | null;
+          location?: string | null;
         };
         Update: {
           id?: string;
@@ -74,6 +77,9 @@ export interface Database {
           avatar_url?: string | null;
           followers?: string[] | null;
           following?: string[] | null;
+          created_at?: string | null;
+          bio?: string | null;
+          location?: string | null;
         };
       };
     };
@@ -85,6 +91,19 @@ export interface Database {
         Args: { input_user_id: string };
         Returns: unknown;
       };
+      get_user_honks: {
+        Args: { input_user_id: string };
+        Returns: unknown;
+      };
+      handle_follow_user:
+        | {
+            Args: { current_user_id: string; input: string };
+            Returns: undefined;
+          }
+        | {
+            Args: { input: string };
+            Returns: undefined;
+          };
       install_available_extensions_and_test: {
         Args: Record<PropertyKey, never>;
         Returns: boolean;

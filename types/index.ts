@@ -18,4 +18,20 @@ declare global {
     DELETE = "DELETE",
     SELECT = "SELECT",
   }
+
+  interface locationQueryResult {
+    records: {
+      record: locationRecord;
+    }[];
+  }
+
+  interface locationRecord {
+    id: string;
+    timestamp: string;
+    size: number;
+    fields: {
+      name: string;
+      cou_name_en: string;
+    };
+  }
 }
