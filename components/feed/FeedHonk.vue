@@ -1,14 +1,10 @@
 <script setup lang="ts">
-import { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "~/types/database.types";
 
-const supabase: SupabaseClient = useSupabaseClient();
+const supabase = useSupabaseClient<Database>();
 const user = useSupabaseUser();
 
 const content = ref<string>("");
-const likes = ref<number>();
-const reposts = ref<number>();
-const replys = ref<number>();
-
 const characterCount = computed(() => {
   return 256 - content.value.length;
 });
@@ -23,17 +19,15 @@ const validateContent = () => {
 };
 
 const handleHonk = async () => {
+  if (!user.value) throw new Error("User is not logged in!");
   try {
     //TODO: design custom alert
     validateContent();
 
     const { error } = await supabase.from("honks").insert({
       created_at: new Date().toISOString(),
-      user_id: user.value?.id,
+      user_id: user.value.id,
       content: content.value,
-      likes: likes.value,
-      reposts: reposts.value,
-      replys: replys.value,
     });
 
     if (error) throw error;
@@ -50,13 +44,15 @@ const handleHonk = async () => {
     class="form-control flex flex-col gap-4 items-end w-full"
     @submit.prevent="handleHonk"
   >
-    <div class="indicator prose w-full">
+    <div class="prose w-full flex flex-col gap-2">
       <span
-        :class="
-          characterCount < 0
-            ? 'indicator-item badge badge-error text-error-content'
-            : 'indicator-item badge badge-primary text-primary-content'
-        "
+        class="indicator-item badge"
+        :class="{
+          'indicator-item badge badge-error text-error-content':
+            characterCount < 0,
+          'indicator-item badge badge-primary text-primary-content':
+            characterCount >= 0,
+        }"
         >{{ characterCount }}</span
       >
       <textarea

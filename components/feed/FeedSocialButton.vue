@@ -29,8 +29,6 @@ const handleClick = async () => {
             : (count.value = 0), //safe guard against negative values
       })
       .eq("post_id", props.postId);
-
-    console.log(count.value);
   } catch (error) {
     console.error(error);
   }
