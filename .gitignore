@@ -198,4 +198,6 @@ dist
 .history
 .ionide
 
+.code-workspace
+
 # End of https://www.toptal.com/developers/gitignore/api/macos,nuxtjs,node,visualstudiocode
