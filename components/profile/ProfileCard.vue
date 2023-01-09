@@ -1,34 +1,47 @@
 <script setup lang="ts">
+import type { Database } from "~~/types/database.types";
+
 const props = defineProps<{
   forUser?: String;
 }>();
 
-const supabase = useSupabaseClient();
+const router = useRouter();
+
+const supabase = useSupabaseClient<Database>();
+const user = useSupabaseUser();
 const username = ref("");
 const website = ref("");
-const avatar_path = ref("");
-
-//TODO: add bio to supabase users table
+const avatar_url = ref("");
 const bio = ref("");
+const location = ref("");
+
+const openSettings = () => {
+  router.push("/settings");
+};
 
 const { data } = await supabase
   .from("users")
-  .select(`username, website, avatar_url`)
+  .select("*")
   .eq("id", props.forUser)
   .single();
 
 if (data) {
-  username.value = data.username;
-  website.value = data.website;
-  avatar_path.value = data.avatar_url;
+  username.value = data.username || "";
+  website.value = data.website || "";
+  avatar_url.value = data.avatar_url || "";
+  bio.value = data.bio || "";
+  location.value = data.location || "";
 }
 </script>
 <template>
   <div
-    class="flex flex-col lg:flex-row card indicator justify-between items-center w-2/3 mt-6 bg-primary p-5"
+    class="card indicator justify-between items-center w-full mt-6 bg-primary p-6"
   >
     <div class="indicator-item">
-      <button class="btn btn-sm no-animation text-base-content">
+      <button
+        class="btn btn-sm no-animation text-base-content"
+        @click="openSettings"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -50,33 +63,41 @@ if (data) {
         </svg>
       </button>
     </div>
-    <div class="avatar p-6 w-auto lg:w-1/3 h-auto">
+    <div class="avatar p-6">
       <div
         class="rounded-full ring ring-base-300 ring-offset-base-100 ring-offset-4"
       >
         <img
           :src="
-            avatar_path
-              ? avatar_path
+            avatar_url
+              ? avatar_url
               : `https://robohash.org/${username}?bgset=bg1&set=set5`
           "
         />
       </div>
     </div>
-    <article
-      class="card-body prose text-primary-content w-auto lg:w-2/3 h-auto"
-    >
+    <article class="card-body prose text-primary-content w-full p-6">
       <h1 class="text-primary-content">@{{ username }}</h1>
-      <div class="not-prose">
+      <div v-if="website" class="not-prose flex flex-row gap-2">
+        <DefaultIcon of="website.svg" class="w-6" />
         <NuxtLink class="link" :to="`http://${website}`">{{
           website
         }}</NuxtLink>
       </div>
-      <p>
-        {{
-          "I'm a lover of life and all its quirks. With a sharp sense of humor and a big heart, I'm here to connect with others and make the world a better place. Let's be friends and have some fun."
-        }}
+      <div v-if="location" class="not-prose flex flex-row gap-2">
+        <DefaultIcon of="location.svg" class="w-6" />
+        <p>{{ location }}</p>
+      </div>
+      <p v-if="bio">
+        {{ bio }}
       </p>
+      <label
+        v-else-if="!bio && user?.id === props.forUser"
+        class="btn btn-secondary"
+        @click="openSettings"
+        >add a bio!</label
+      >
+      <p v-else>This user doesn't have a bio 😔</p>
     </article>
   </div>
 </template>

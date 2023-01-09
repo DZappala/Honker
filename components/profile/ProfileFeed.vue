@@ -103,12 +103,14 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="h-screen flex flex-col gap-4 w-3/5 pt-4">
-    <div v-if="feed.queueCount != 0" class="toast toast-top toast-center w-1/2">
-      <div class="alert alert-info">
-        <span @click="loadNewHonks">load {{ feed.queueCount }} new honks?</span>
-      </div>
-    </div>
+  <div class="flex flex-col gap-6 p-4 items-center">
+    <label
+      v-if="feed.queueCount != 0"
+      @click="loadNewHonks"
+      class="btn btn-secondary shadow-md shadow-secondary hover:shadow-secondary-focus w-full"
+    >
+      load {{ feed.queueCount }} new honks?
+    </label>
     <div v-for="(honk, index) in feed.honks" :key="index">
       <LazyFeedOtherHonk v-bind="honk" />
     </div>
