@@ -6,6 +6,7 @@ import { SupabaseClient } from "@supabase/supabase-js";
 
 const supabase: SupabaseClient = useSupabaseClient();
 const user = useSupabaseUser();
+const loading = ref<boolean>(false);
 
 const feed = reactive({
   honks: [] as Honk[],
@@ -77,6 +78,7 @@ const channel = supabase
 
 onMounted(async () => {
   try {
+    loading.value = true;
     //Get all the honks from users followed
     const { data, error } = await supabase.rpc("get_honks_for_feed", {
       input_user_id: user.value?.id,
@@ -96,6 +98,8 @@ onMounted(async () => {
     }
   } catch (error: any | unknown) {
     console.error(Error(error.message));
+  } finally {
+    loading.value = false;
   }
 });
 
@@ -114,8 +118,9 @@ onUnmounted(() => {
     >
       load {{ feed.queueCount }} new honks?
     </label>
-    <div v-for="(honk, index) in feed.honks" :key="index">
+    <div v-for="(honk, index) in feed.honks" :key="index" v-if="!loading">
       <LazyFeedOtherHonk v-bind="honk" />
     </div>
+    <FeedPostLoading v-else />
   </div>
 </template>

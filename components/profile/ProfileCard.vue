@@ -79,13 +79,13 @@ if (data) {
     <article class="card-body prose text-primary-content w-full p-6">
       <h1 class="text-primary-content">@{{ username }}</h1>
       <div v-if="website" class="not-prose flex flex-row gap-2">
-        <DefaultIcon of="website.svg" class="w-6" />
+        <DefaultIcon of="/website.svg" class="w-6" />
         <NuxtLink class="link" :to="`http://${website}`">{{
           website
         }}</NuxtLink>
       </div>
       <div v-if="location" class="not-prose flex flex-row gap-2">
-        <DefaultIcon of="location.svg" class="w-6" />
+        <DefaultIcon of="/location.svg" class="w-6" />
         <p>{{ location }}</p>
       </div>
       <p v-if="bio">

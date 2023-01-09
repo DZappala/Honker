@@ -55,25 +55,30 @@ const getSearchPredictions = async () => {
       // searchPredictions.value = data.map((honk) => honk.tags);
       break;
     case "at":
-      // const { data, error } = await supabase.rpc("search_honks", {
-      //   input: search.value,
-      // });
-      // if (error) throw error;
-      // searchPredictions.value = data.map((user) => {
-      //   return {
-      //     searchType: searchType,
-      //     value: `@${user.username}`,
-      //     endpoint: `/profile/${user.id}`,
-      //   };
-      // });
+      const { data, error } = await supabase
+        .from("users")
+        .select()
+        .ilike("username", `%${search.value.substring(1)}%`) //HACK usernames should have `ats` in front of them on database
+        .limit(5);
+
+      if (error) throw error;
+
+      data.forEach((user) => {
+        searchPredictions.value.push({
+          searchType: searchType,
+          value: `@${user.username}`,
+          endpoint: `/profile/${user.id}`,
+        });
+      });
       break;
     case "text":
-      // const { data: users, error: honksError } = await supabase
-      //   .from("honks")
-      //   .select()
-      //   .textSearch("content", `${search.value}`)
-      //   .limit(5);
-      // if (usersError) throw usersError;
+      const { data: users, error: usersError } = await supabase
+        .from("users")
+        .select()
+        .ilike("username", `%${search.value}%`)
+        .limit(5);
+
+      if (usersError) throw usersError;
 
       const { data: honks, error: honksError } = await supabase
         .from("honks")
@@ -91,15 +96,13 @@ const getSearchPredictions = async () => {
         })
       );
 
-      // searchPredictions.value.push(
-      //   ...users.map((user) => {
-      //     return {
-      //       searchType: searchType,
-      //       value: `@${user.username}`,
-      //       endpoint: `/profile/${user.id}`,
-      //     };
-      //   })
-      // );
+      users.forEach((user) => {
+        searchPredictions.value.push({
+          searchType: searchType,
+          value: `@${user.username}`,
+          endpoint: `/profile/${user.id}`,
+        });
+      });
       break;
     default:
       break;
@@ -114,6 +117,7 @@ watch(search, async () => {
 
   await getSearchPredictions()
     .catch((error) => {
+      //TODO: handle error for user (validation)
       console.error(error);
     })
     .finally(() => {
@@ -132,7 +136,7 @@ watch(search, async () => {
         </NuxtLink>
       </div>
       <img
-        src="goose.png"
+        src="/goose.png"
         alt="Honker Logo"
         class="hidden md:block md:w-1/12 p-2"
       />
@@ -185,6 +189,7 @@ watch(search, async () => {
                 @click="
                   {
                     $router.push(prediction.endpoint);
+                    search = '';
                   }
                 "
                 >{{ prediction.value }}</span

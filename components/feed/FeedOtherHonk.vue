@@ -19,6 +19,7 @@ const props = defineProps<{
 
 const isFollowing = ref<boolean>(false);
 const username = ref<string>("");
+const loading = ref<boolean>(false);
 
 const handleFollowUnfollow = async () => {
   try {
@@ -72,14 +73,16 @@ const setIsFollowing = async () => {
   }
 };
 
-onBeforeMount(async () => {
+onMounted(async () => {
+  loading.value = true;
   setIsFollowing();
   getPostUsername();
+  loading.value = false;
 });
 </script>
 
 <template>
-  <div class="card bg-base-300 flex">
+  <div class="card bg-base-300 flex" v-if="!loading">
     <figure>
       <img
         :src="`https://source.unsplash.com/random/400x500?sig=${Math.floor(
@@ -121,23 +124,24 @@ onBeforeMount(async () => {
           :post-id="post_id"
           :action="'likes'"
           :initial-state="false"
-          :icon="'heart.svg'"
+          :icon="'/heart.svg'"
         />
         <FeedSocialButton
           :initial-count="reposts"
           :post-id="post_id"
           :action="'reposts'"
           :initial-state="false"
-          :icon="'loop.svg'"
+          :icon="'/loop.svg'"
         />
         <FeedSocialButton
           :initial-count="replys"
           :post-id="post_id"
           :action="'replys'"
           :initial-state="false"
-          :icon="'chatBubble.svg'"
+          :icon="'/chatBubble.svg'"
         />
       </div>
     </div>
   </div>
+  <FeedPostLoading v-else />
 </template>
