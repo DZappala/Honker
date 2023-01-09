@@ -1,44 +1,39 @@
 # Plan
 
----
-
 - [ ] news feed
-  - [ ] post a chirp
-  - [ ] delete a chirp
-  - [ ] edit a chirp
-  - [ ] like a chirp
-  - [ ] unlike a chirp
-  - [ ] reply to a chirp
+  - [x] post a honk
+  - [ ] delete a honk
+  - [ ] edit a honk
+  - [x] like a honk
+  - [x] unlike a honk
+  - [ ] reply to a honk
   - [ ] delete a reply
   - [ ] edit a reply
   - [ ] like a reply
   - [ ] unlike a reply
-  - [ ] repost a chirp
+  - [ ] repost a honk
   - [ ] delete a repost
   - [ ] quote repost
-  - [ ] follow a user
-  - [ ] unfollow a user
-  - [ ] view a user's profile
+  - [x] follow a user
+  - [x] unfollow a user
+  - [x] view a user's profile
   - [ ] view a user's followers
 - [ ] user profile
-  - [ ] set user name
+  - [x] set user name
   - [ ] set profile picture
   - [ ] set bio
   - [ ] set location
-  - [ ] set website
-  - [ ] list user's chirps
-- [ ] user authentication and registration
-  - [ ] register
-  - [ ] login
-  - [ ] logout
-  - [ ] reset password
+  - [x] set website
+  - [x] list user's honks
+- [x] user authentication and registration
+  - [x] register
+  - [x] login
+  - [x] logout
+  - [ ] ~~reset password~~
   - [ ] change email
 
 # Tech Stack
-
----
-
 - Nuxt 3 (Vue 3, Frontend and Backend)
 - Vite (bundler)
 - Tailwind CSS, daisyUI (maybe some other component library)
-- Fauna and GraphQL (graph database)
+- Supabase (backend, database, auth, storage, Postgres)
