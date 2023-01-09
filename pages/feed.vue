@@ -1,5 +1,6 @@
 <script setup lang="ts">
-//HACK: These imports should be auto-imported by NUXT. Only working if imported manually. Attempted adding to dirs property in nuxt.config.ts already, issue persists.
+//TODO: when new honks are loaded, old honks animate down and out of the way, new honk slides in smoothly. Right now honks are just appearing immediately and it's jarring
+
 import { RealtimePostgresChangesPayload } from "@supabase/realtime-js";
 import { SupabaseClient } from "@supabase/supabase-js";
 
@@ -104,7 +105,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-4 w-3/5 pt-4 items-center">
+  <div class="flex flex-col gap-6 p-4 items-center w-full">
     <FeedHonk />
     <label
       v-if="feed.queueCount != 0"
@@ -114,7 +115,6 @@ onUnmounted(() => {
       load {{ feed.queueCount }} new honks?
     </label>
     <div v-for="(honk, index) in feed.honks" :key="index">
-      <!-- TODO: when new honks are loaded, old honks animate down and out of the way, new honk slides in smoothly. Right now  honks are just appearing immediately and it's jarring-->
       <LazyFeedOtherHonk v-bind="honk" />
     </div>
   </div>
