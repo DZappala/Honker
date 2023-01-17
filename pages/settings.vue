@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Database } from "~/types/database.types";
+import type { locationQueryResult } from "~/types";
 
 const supabase = useSupabaseClient<Database>();
 const user = useSupabaseUser();
@@ -102,7 +103,7 @@ const getLocationPredictions = async () => {
 
   locationPredictions.value =
     data?.value?.records.map(
-      (record) =>
+      (record: any) =>
         `${record.record.fields.name}, ${record.record.fields.cou_name_en}`
     ) || [];
 };

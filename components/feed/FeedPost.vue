@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import { Database } from "~/types/database.types";
-import { Honk, postActions } from "~/types";
-import {
-  RealtimeChannel,
-  RealtimePostgresChangesPayload,
-} from "@supabase/realtime-js";
+import { postActions } from "~/types";
 
 const supabase = useSupabaseClient<Database>();
 const user = useSupabaseUser();
@@ -28,9 +24,6 @@ const props = defineProps<{
 const isFollowing = ref<boolean>(false);
 const username = ref<string>("");
 const loading = ref<boolean>(false);
-
-let replysChannel: RealtimeChannel;
-const replys = ref<Honk[]>([]);
 
 const isReposting = ref<boolean>(false);
 const isReplying = ref<boolean>(false);
@@ -102,61 +95,11 @@ const setIsFollowing = async () => {
   }
 };
 
-//watch for changes in the honks database for this post
-//if the post_id matches the current post_id then update the props
-//this will update the count list of replies
-
-onBeforeMount(() => {
-  replysChannel = supabase
-    .channel("realtime:honks")
-    .on(
-      "postgres_changes",
-      {
-        event: "*",
-        schema: "public",
-        table: "honks",
-        filter: "post_id",
-      },
-      (
-        payload: RealtimePostgresChangesPayload<{
-          honk: Honk;
-        }>
-      ) => {
-        switch (payload.eventType) {
-          case "INSERT":
-            replys.value.push(payload.new.honk);
-            break;
-          case "UPDATE":
-            if (!payload.old.honk) break;
-            const index = replys.value.findIndex(
-              (reply) => reply.post_id === payload.old.honk?.post_id
-            );
-            replys.value[index] = payload.new.honk;
-            break;
-          case "DELETE":
-            if (!payload.old.honk) break;
-            const honkToDelete = replys.value.findIndex(
-              (reply) => reply.post_id === payload.old.honk?.post_id
-            );
-            replys.value.splice(honkToDelete, 1);
-            break;
-          default:
-            break;
-        }
-      }
-    )
-    .subscribe();
-});
-
 onMounted(async () => {
   loading.value = true;
   setIsFollowing();
   getPostUsername();
   loading.value = false;
-});
-
-onUnmounted(() => {
-  replysChannel.unsubscribe();
 });
 </script>
 
@@ -217,12 +160,30 @@ onUnmounted(() => {
     </div>
     <div v-if="isReplying">
       <div class="indicator w-full">
-        <FeedHonk :action="postActions.REPLY" :reference="post_id" />
+        <FeedHonk
+          :action="postActions.REPLY"
+          :reference="post_id"
+          @reply="
+            {
+              hasReplied = !hasReplied;
+              isReplying = false;
+            }
+          "
+        />
       </div>
     </div>
     <div v-if="isReposting">
       <div class="indicator w-full">
-        <FeedHonk :action="postActions.REPOST" :reference="post_id" />
+        <FeedHonk
+          :action="postActions.REPOST"
+          :reference="post_id"
+          @repost="
+            {
+              hasReposted = !hasReposted;
+              isReposting = false;
+            }
+          "
+        />
       </div>
     </div>
   </div>

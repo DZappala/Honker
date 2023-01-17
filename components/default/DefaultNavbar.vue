@@ -58,7 +58,7 @@ const getSearchPredictions = async () => {
       const { data, error } = await supabase
         .from("users")
         .select()
-        .ilike("username", `%${search.value.substring(1)}%`) //HACK usernames should have `ats` in front of them on database
+        .ilike("username", `%${search.value.substring(1)}%`) //HACK usernames should have `ats` in front of them on database, wont work if user types `at` twice
         .limit(5);
 
       if (error) throw error;

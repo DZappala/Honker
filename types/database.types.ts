@@ -1,3 +1,5 @@
+import { Honk } from ".";
+
 export type Json =
   | string
   | number
@@ -18,6 +20,9 @@ export interface Database {
           likes: number;
           reposts: number;
           replys: number;
+          reference: number | null;
+          is_reply: boolean;
+          is_repost: boolean;
         };
         Insert: {
           post_id?: number;
@@ -27,6 +32,9 @@ export interface Database {
           likes?: number;
           reposts?: number;
           replys?: number;
+          reference?: number | null;
+          is_reply: boolean;
+          is_repost: boolean;
         };
         Update: {
           post_id?: number;
@@ -36,6 +44,9 @@ export interface Database {
           likes?: number;
           reposts?: number;
           replys?: number;
+          reference?: number | null;
+          is_reply?: boolean;
+          is_repost?: boolean;
         };
       };
       users: {
@@ -89,11 +100,11 @@ export interface Database {
     Functions: {
       get_honks_for_feed: {
         Args: { input_user_id: string };
-        Returns: unknown;
+        Returns: Honk;
       };
       get_user_honks: {
         Args: { input_user_id: string };
-        Returns: unknown;
+        Returns: Honk;
       };
       handle_follow_user: {
         Args: { current_user_id: string; input: string };
